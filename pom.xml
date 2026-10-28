@@ -5,7 +5,7 @@
   <artifactId>security-keycloak</artifactId>
   <version>1.0-SNAPSHOT</version>
   <name>Archetype - security-keycloak</name>
-  <packaging>pom</packaging> <!-- Crucial step -->
+  <packaging>pom</packaging>
 
   <properties>
     <maven.compiler.source>21</maven.compiler.source>
@@ -14,7 +14,6 @@
   </properties>
 
   <modules>
-    <module>key-cloak-server</module>
     <module>spring-gateway</module>
   </modules>
 </project>

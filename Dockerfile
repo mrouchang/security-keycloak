@@ -1,40 +1,35 @@
 # --- Stage 1: Build the application ---
-FROM maven:3.9.6-eclipse-temurin-17 AS builder
+FROM maven:3.9.8-eclipse-temurin-21 AS builder
 
-# Set the working directory inside the container
 WORKDIR /app
 
-# Step 1: Copy only the pom.xml to cache dependencies
+# Create module directory
+RUN mkdir -p spring-gateway
+
+# Copy parent pom and module pom
 COPY pom.xml .
-
-# Fetch all dependencies. This layer is cached unless pom.xml changes.
-RUN mvn dependency:go-offline -B
-
-# 2. Create the child module directories
-RUN mkdir key-cloak-server spring-gateway
-
-# 3. Copy the pom.xml for each child module to cache dependencies properly
-COPY key-cloak-server/pom.xml ./key-cloak-server/
 COPY spring-gateway/pom.xml ./spring-gateway/
 
-# 4. Copy the complete source code for all modules
-COPY key-cloak-server/src ./key-cloak-server/src
+# Fetch dependencies
+RUN mvn dependency:go-offline -B
+
+# Copy source code
 COPY spring-gateway/src ./spring-gateway/src
 
-# Run the build
-RUN mvn clean install -B
+# Build all modules
+RUN mvn clean install -DskipTests -B
 
-# --- Stage 2: Create the runtime image ---
-FROM eclipse-temurin:17-jre-alpine
+# --- Stage 2: Runtime image for spring-gateway ---
+FROM eclipse-temurin:21-jre-alpine
 
 WORKDIR /app
 
-# Copy the compiled .jar file from the builder stage
-# Note: Replace 'your-app-name' with the actual artifactId from your pom.xml
-COPY --from=builder ./spring-gateway/target/your-app-name-*.jar app.jar
+# Copy the built spring-gateway JAR
+COPY --from=builder /app/spring-gateway/target/spring-gateway-*.jar app.jar
 
-# Expose the application port (adjust as necessary)
-EXPOSE 8081
+EXPOSE 8080
 
-# Command to run the application
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD java -cp app.jar org.springframework.boot.loader.JarLauncher || exit 1
+
 ENTRYPOINT ["java", "-jar", "app.jar"]

@@ -1,0 +1,62 @@
+version: '3.9'
+
+services:
+  spring-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: spring-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_APPLICATION_NAME=spring-gateway
+#      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:8761/eureka
+      - JAVA_OPTS=-Xmx512m -Xms256m
+#    depends_on:
+#      eureka:
+#        condition: service_healthy
+    networks:
+      - keycloak-network
+    restart: unless-stopped
+
+#  eureka:
+#    image: netflixoss/eureka:latest
+#    container_name: eureka-server
+#    ports:
+#      - "8761:8761"
+#    environment:
+#      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=false
+#      - EUREKA_CLIENT_FETCH_REGISTRY=false
+#    healthcheck:
+#      test: ["CMD", "curl", "-f", "http://localhost:8761/eureka"]
+#      interval: 30s
+#      timeout: 10s
+#      retries: 3
+#      start_period: 40s
+#    networks:
+#      - keycloak-network
+#    restart: unless-stopped
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: keycloak-server
+    ports:
+      - "8888:8080"
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KC_DB=dev-file
+    command: start-dev
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - keycloak-network
+    restart: unless-stopped
+
+networks:
+  keycloak-network:
+    driver: bridge
