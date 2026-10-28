@@ -21,7 +21,8 @@ public class SecurityConfig {
     // <1>
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(auth -> auth.requestMatchers("/actuator/**").permitAll().anyRequest().authenticated())
+        http.authorizeHttpRequests(
+                auth -> auth.requestMatchers("/actuator/**").permitAll().anyRequest().authenticated())
                 .oauth2Login(withDefaults())  // Enables OAuth2 login
                 .oauth2Client(withDefaults()) // Enables OAuth2 client
                 .csrf(csrf -> csrf.disable())  // Disable CSRF for APIs
