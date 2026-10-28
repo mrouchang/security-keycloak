@@ -1,0 +1,9 @@
+services:
+  version: '3.8'
+  spring-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: spring_gateway
+    ports:
+      - "8080:8080"
