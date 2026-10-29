@@ -7,14 +7,14 @@ services:
       dockerfile: Dockerfile
     container_name: spring-gateway
     ports:
-      - "8080:8080"
+      - "8081:8081"
     environment:
       - SPRING_APPLICATION_NAME=spring-gateway
 #      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:8761/eureka
       - JAVA_OPTS=-Xmx512m -Xms256m
-#    depends_on:
-#      eureka:
-#        condition: service_healthy
+    depends_on:
+      keycloak:
+        condition: service_healthy
     networks:
       - keycloak-network
     restart: unless-stopped
