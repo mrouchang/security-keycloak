@@ -23,7 +23,7 @@ public class SecurityConfig {
     @Bean
     public JwtDecoder jwtDecoder() {
         // Replace with your actual Keycloak issuer URI
-        return JwtDecoders.fromIssuerLocation("http://localhost:8888/realms/minwei_keycloak");
+        return JwtDecoders.fromIssuerLocation("http://localhost:8080/realms/minwei_keycloak");
     }
 
     // <1>

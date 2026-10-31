@@ -24,12 +24,12 @@ public class OAuth2Config {
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .redirectUri("{baseUrl}/login/oauth2/code/{registrationId}")
                 .scope("openid", "profile", "email")
-                .authorizationUri("http://localhost:8888/realms/minwei_keycloak/protocol/openid-connect/auth")
-                .tokenUri("http://localhost:8888/realms/minwei_keycloak/protocol/openid-connect/token")
-                .userInfoUri("http://localhost:8888/realms/minwei_keycloak/protocol/openid-connect/userinfo")
+                .authorizationUri("http://localhost:8080/realms/minwei_keycloak/protocol/openid-connect/auth")
+                .tokenUri("http://localhost:8080/realms/minwei_keycloak/protocol/openid-connect/token")
+                .userInfoUri("http://localhost:8080/realms/minwei_keycloak/protocol/openid-connect/userinfo")
                 .userNameAttributeName("preferred_username")
-                .jwkSetUri("http://localhost:8888/realms/minwei_keycloak/protocol/openid-connect/certs")
-                .issuerUri("http://localhost:8888/realms/minwei_keycloak")
+                .jwkSetUri("http://localhost:8080/realms/minwei_keycloak/protocol/openid-connect/certs")
+                .issuerUri("http://localhost:8080/realms/minwei_keycloak")
                 .clientName("minwei-keycloak")
                 .build();
     }
