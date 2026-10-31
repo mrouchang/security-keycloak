@@ -3,9 +3,9 @@ services:
     image: postgres:16-alpine
     container_name: keycloak-db
     environment:
-      - POSTGRES_DB=keycloak
-      - POSTGRES_USER=keycloak
-      - POSTGRES_PASSWORD=keycloak
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak
     ports:
       - "5432:5432"
     volumes:
@@ -20,16 +20,17 @@ services:
     restart: unless-stopped
 
   pgadmin:
-    image: dpage/pgadmin4
+    image: dpage/pgadmin4:latest
     container_name: pgadmin4_container
     restart: always
     ports:
-      - "8082:8082"
+      - "5050:81"
     environment:
       PGADMIN_DEFAULT_EMAIL: mrouchang@hotmail.com
       PGADMIN_DEFAULT_PASSWORD: strong-password
-      KC_HOSTNAME: localhost
-      KC_HOSTNAME_PORT: 8080
+    depends_on:
+      keycloak-db:
+        condition: service_healthy
     volumes:
       - pgadmin-data:/var/lib/pgadmin
 
