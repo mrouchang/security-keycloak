@@ -1,5 +1,6 @@
 package org.security.keycloak.springgateway.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -11,26 +12,43 @@ import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 @Configuration
 public class OAuth2Config {
 
+    @Value("${spring.security.oauth2.client.registration.keycloak.client-id}")
+    private String clientId;
+
+    @Value("${spring.security.oauth2.client.registration.keycloak.client-secret}")
+    private String clientSecret;
+
+    @Value("${spring.security.oauth2.client.registration.keycloak.redirect-uri}")
+    private String redirectUri;
+
+    @Value("${spring.security.oauth2.client.provider.keycloak.issuer-uri}")
+    private String issuerUri;
+
     @Bean
     public ClientRegistrationRepository clientRegistrationRepository() {
         return new InMemoryClientRegistrationRepository(this.keycloakClientRegistration());
     }
 
     private ClientRegistration keycloakClientRegistration() {
+        String authorizationUri = issuerUri + "/protocol/openid-connect/auth";
+        String tokenUri = issuerUri + "/protocol/openid-connect/token";
+        String userInfoUri = issuerUri + "/protocol/openid-connect/userinfo";
+        String jwkSetUri = issuerUri + "/protocol/openid-connect/certs";
+
         return ClientRegistration.withRegistrationId("keycloak")
-                .clientId("minwei-keycloak-confidential")
-                .clientSecret("Q0eu7bCzOB0Mdvbh0Hq5LylNvC2fAME4")
+                .clientId(clientId)
+                .clientSecret(clientSecret)
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .redirectUri("http://localhost:8081/login/oauth2/code/keycloak")
+                .redirectUri(redirectUri)
                 .scope("openid", "profile", "email")
-                .authorizationUri("http://localhost:8080/realms/minwei_keycloak/protocol/openid-connect/auth")
-                .tokenUri("http://localhost:8080/realms/minwei_keycloak/protocol/openid-connect/token")
-                .userInfoUri("http://localhost:8080/realms/minwei_keycloak/protocol/openid-connect/userinfo")
+                .authorizationUri(authorizationUri)
+                .tokenUri(tokenUri)
+                .userInfoUri(userInfoUri)
                 .userNameAttributeName("preferred_username")
-                .jwkSetUri("http://localhost:8080/realms/minwei_keycloak/protocol/openid-connect/certs")
-                .issuerUri("http://localhost:8080/realms/minwei_keycloak")
-                .clientName("minwei-keycloak")
+                .jwkSetUri(jwkSetUri)
+                .issuerUri(issuerUri)
+                .clientName("keycloak")
                 .build();
     }
 }

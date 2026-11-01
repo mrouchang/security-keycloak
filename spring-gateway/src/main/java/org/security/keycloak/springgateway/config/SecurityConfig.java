@@ -1,5 +1,6 @@
 package org.security.keycloak.springgateway.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
@@ -20,10 +21,12 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableAspectJAutoProxy
 public class SecurityConfig {
 
+    @Value("${spring.security.oauth2.client.provider.keycloak.issuer-uri}")
+    private String issuerUri;
+
     @Bean
     public JwtDecoder jwtDecoder() {
-        // Replace with your actual Keycloak issuer URI
-        return JwtDecoders.fromIssuerLocation("http://localhost:8080/realms/minwei_keycloak");
+        return JwtDecoders.fromIssuerLocation(issuerUri);
     }
 
     // <1>
