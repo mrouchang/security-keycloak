@@ -5,10 +5,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtDecoders;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -29,40 +27,34 @@ public class SecurityConfig {
         return JwtDecoders.fromIssuerLocation(issuerUri);
     }
 
-    // <1>
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // Build the JWT authentication mechanism
-        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(new KeycloakRoleConverter());
-
-        http.csrf(withDefaults())
-            .authorizeHttpRequests(
-                auth -> auth.requestMatchers("/actuator/**").permitAll()
-                                .requestMatchers("/api/public/**").permitAll() // Open endpoints
-                                .requestMatchers("/api/admin/**").hasRole("admin") // Restricted to Keycloak admin role
-                                .anyRequest().authenticated() // Everything else requires a valid token
+        http
+            .csrf(csrf -> csrf.disable())
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/actuator/**").permitAll()
+                .requestMatchers("/api/public/**").permitAll()
+                .requestMatchers("/swagger-ui/**", "/swagger-ui.html").permitAll()
+                .requestMatchers("/v3/api-docs/**", "/v3/api-docs").permitAll()
+                .requestMatchers("/login/**").permitAll()
+                .requestMatchers("/logout").permitAll()
+                .anyRequest().authenticated()
             )
-            .oauth2Login(withDefaults())  // Enables OAuth2 login
-            .oauth2Client(withDefaults()) // Enables OAuth2 client
-            .csrf(csrf -> csrf.disable())  // Disable CSRF for APIs
-            .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Enable CORS
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .oauth2Login(withDefaults())
             .formLogin(withDefaults())
-            .oauth2ResourceServer( // Configure the OAuth2 Resource Server Filter
-                    oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)));
+            .logout(logout -> logout.permitAll());
 
         return http.build();
     }
 
-    // <2>
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
         config.setAllowedOrigins(List.of(
-                "http://auth.nsa2.com:9000",  // Keycloak
-                "http://gateway.nsa2.com:8080" // Spring Cloud Gateway
+                "http://localhost:8081",
+                "http://localhost:8080"
         ));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
