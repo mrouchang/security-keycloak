@@ -35,10 +35,9 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/actuator/**").permitAll()
                 .requestMatchers("/api/public/**").permitAll()
-                .requestMatchers("/swagger-ui/**", "/swagger-ui.html").permitAll()
-                .requestMatchers("/v3/api-docs/**", "/v3/api-docs").permitAll()
                 .requestMatchers("/login/**").permitAll()
                 .requestMatchers("/logout").permitAll()
+                .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/v3/api-docs").authenticated()
                 .anyRequest().authenticated()
             )
             .oauth2Login(withDefaults())
